@@ -1,0 +1,26 @@
+{
+  "name": "cpy.li",
+  "short_name": "cpy.li",
+  "icons": [
+    {
+      "src": "/assets/img/logo/152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/logo/192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/logo/512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#00242B",
+  "background_color": "#00242B",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
