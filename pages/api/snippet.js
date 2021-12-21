@@ -9,8 +9,8 @@ const snippetObject = (snippet) => ({
   language: snippet.attributes.language,
   auto_copy: snippet.attributes.auto_copy,
   password_protected: snippet.attributes.password && snippet.attributes.password !== '',
-  title: snippet.attributes.seo.title,
-  description: snippet.attributes.seo.description,
+  title: snippet.attributes.seo?.title,
+  description: snippet.attributes.seo?.description,
 })
 
 const snippetListObject = (snippet) => ({
@@ -39,22 +39,29 @@ async function handler(req, res) {
     try {
       const { slug } = req.query
       const { data } = await axios.get(`${process.env.BACKEND_URL}/api/snippets?populate=seo&filters[slug][$eq]=${slug}`)
-      const item = snippetObject(data.data[0])
-      axios.put(`${process.env.BACKEND_URL}/api/snippets/${item.id}`, { data: { views: parseInt(item.views) + 1 } })
-      statusCode = 200
-      response = item
+      if (data?.data?.[0]) {
+        const dataItem = data.data[0]
+        const item = snippetObject(dataItem.attributes.password ? { attributes: { password: 'any' } } : dataItem)
+        if (item.id) axios.put(`${process.env.BACKEND_URL}/api/snippets/${item.id}`, { data: { views: parseInt(item.views) + 1 } })
+        statusCode = 200
+        response = item
+      } else {
+        statusCode = 404
+        response = {}
+      }
     } catch (e) {
       // no user
     }
   } else if (action === apiActions.create) {
     try {
       const {
-        title, body, language, auto_copy, description,
+        title, body, language, auto_copy, description, password,
       } = req.body
       const params = {
         data: {
           body,
           language,
+          password,
           seo: {
             title, description,
           },
