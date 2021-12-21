@@ -7,44 +7,61 @@ import {
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { RWebShare } from 'react-web-share'
-import { useEffect, useMemo, useState } from 'react'
+import {
+  useEffect, useMemo, useRef, useState,
+} from 'react'
 import axios from 'axios'
+import ReCAPTCHA from 'react-google-recaptcha'
+import Prism from 'prismjs'
 import Layout from '../src/components/layout'
 import {
-  apiActions, seoMeta, SITE_NAME, supportedSyntax,
+  apiActions, recaptchaKey, seoMeta, SITE_NAME, supportedSyntax,
 } from '../src/utils/constants'
+import 'prismjs/themes/prism-tomorrow.css'
 
 // import dynamic from 'next/dynamic'
-// const Carousel = dynamic(() => import('react-responsive-carousel').then((mod) => mod.Carousel), { ssr: false, loading: () => <p>...</p> })
+// const Prism = dynamic(() => import('prismjs'), { ssr: false, loading: () => <p>...</p> })
 
 export default function Home({ snippet }) {
+  const reRef = useRef()
   const router = useRouter()
   const toast = useToast()
-  const { query } = router
+  const { query, asPath } = router
   const { index } = query // will be an array
   const slug = index?.[0]
   const readOnly = useMemo(() => !!slug, [slug])
   const {
     register, handleSubmit, watch, reset,
   } = useForm()
-  const { register: registerPassword, handleSubmit: handleSubmitPassword } = useForm()
+  const { register: registerPassword, handleSubmit: handleSubmitPassword, reset: resetPassword } = useForm()
   const { hasCopied, onCopy } = useClipboard(watch('snippet'))
   const [loading, setLoading] = useState(false)
+  const [protectedSnippet, setProtectedSnippet] = useState(undefined)
+
+  const theSnippet = useMemo(() => {
+    return protectedSnippet || snippet
+  }, [snippet, protectedSnippet])
+
+  useEffect(() => {
+    setProtectedSnippet(undefined)
+    resetPassword()
+  }, [asPath, resetPassword])
 
   useEffect(() => {
     if (index?.length > 1) {
       router.push('/')
       return
     }
-    if (snippet) {
+    if (theSnippet) {
+      if (readOnly) Prism.highlightAll()
       reset({
-        snippet: snippet?.body,
-        language: snippet?.language,
-        auto_copy: snippet?.auto_copy,
-        password_protected: snippet?.password_protected,
-        optional_fields: snippet?.language !== 'text' || snippet?.title || snippet?.description,
-        title: snippet?.title,
-        description: snippet?.description,
+        snippet: theSnippet?.body,
+        language: theSnippet?.language,
+        auto_copy: theSnippet?.auto_copy,
+        password_protected: theSnippet?.password_protected,
+        optional_fields: theSnippet?.language !== 'text' || theSnippet?.title || theSnippet?.description,
+        title: theSnippet?.title,
+        description: theSnippet?.description,
       })
     } else {
       reset({
@@ -58,11 +75,11 @@ export default function Home({ snippet }) {
       })
       if (slug)router.push('/')
     }
-  }, [reset, snippet, router, slug, index])
+  }, [reset, theSnippet, router, slug, index, readOnly])
 
   useEffect(() => {
-    if (snippet && snippet.auto_copy) {
-      navigator.clipboard.writeText(snippet.body)
+    if (theSnippet && theSnippet.auto_copy) {
+      navigator.clipboard.writeText(theSnippet.body)
         .then(() => {
           toast({ title: 'Snippet Copied.', status: 'success' })
         })
@@ -70,14 +87,17 @@ export default function Home({ snippet }) {
           toast({ title: "Browser does't support auto copy without user interaction. ", status: 'warning' })
         })
     }
-  }, [snippet])
+  }, [theSnippet])
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    const token = await reRef.current.executeAsync()
+    reRef.current.reset()
+
     const {
       title, snippet: body, language, auto_copy, description, password,
     } = data
     const params = {
-      title, body, language, auto_copy, description, password,
+      title, body, language, auto_copy, description, password, token,
     }
 
     setLoading(true)
@@ -90,23 +110,40 @@ export default function Home({ snippet }) {
       .catch(() => setLoading(false))
   }
 
+  const onSubmitPassword = (data) => {
+    const { password } = data
+    const params = { slug, password }
+
+    setLoading(true)
+    axios.get('/api/snippet?action=findPassword', { params })
+      .then((res) => {
+        setProtectedSnippet(res.data)
+        resetPassword()
+        setLoading(false)
+      })
+      .catch(() => {
+        toast({ title: 'Wrong Password.', status: 'error' })
+        setLoading(false)
+      })
+  }
+
   return (
     <>
       <Head>
         <title>{SITE_NAME}</title>
-        <meta name="twitter:title" content={snippet?.title || seoMeta.title} />
-        <meta property="og:title" content={snippet?.title || seoMeta.title} />
-        <meta name="description" content={snippet?.description || seoMeta.description} />
-        <meta name="twitter:description" content={snippet?.description || seoMeta.description} />
-        <meta property="og:description" content={snippet?.description || seoMeta.description} />
+        <meta name="twitter:title" content={theSnippet?.title || seoMeta.title} />
+        <meta property="og:title" content={theSnippet?.title || seoMeta.title} />
+        <meta name="description" content={theSnippet?.description || seoMeta.description} />
+        <meta name="twitter:description" content={theSnippet?.description || seoMeta.description} />
+        <meta property="og:description" content={theSnippet?.description || seoMeta.description} />
 
       </Head>
 
       <Layout>
-        {snippet?.password_protected ? (
+        {theSnippet?.password_protected ? (
           <Box width={['100%', '100%', '80%', '80%']} marginY={14} display="flex" alignItems="center" justifyContent="center" flexDirection="column">
             <Text size="lg">This Snippet Is Protected With Password</Text>
-            <form onSubmit={handleSubmitPassword(onSubmit)}>
+            <form onSubmit={handleSubmitPassword(onSubmitPassword)}>
               <Box my={5} width="100%">
                 <FormControl my={2}>
                   <Input id="password" {...registerPassword('password')} placeholder="Password" size="lg" type="password" isDisabled={loading} />
@@ -139,13 +176,22 @@ export default function Home({ snippet }) {
                 Raw
               </Button>
               )}
-              {readOnly && <Text fontSize="xs">{`Views: ${snippet?.views}`}</Text>}
+              {readOnly && <Text fontSize="xs">{`Views: ${theSnippet?.views}`}</Text>}
             </Box>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Box my={5} width="100%">
                 <FormControl marginY={4} id="snippet">
-                  <Textarea isRequired {...register('snippet')} placeholder="enter your snippet here..." name="snippet" type="text" rows={10} maxLength={20000} isDisabled={loading || readOnly} />
-                  <FormHelperText>{`max length = 20000 | character count: ${watch('snippet')?.length || 0}`}</FormHelperText>
+                  {readOnly ? (
+                    <Box as="pre" minHeight={300}>
+                      <code className={`language-${theSnippet?.language}`}>{theSnippet.body}</code>
+                    </Box>
+
+                  ) : (
+                    <>
+                      <Textarea isRequired {...register('snippet')} placeholder="enter your snippet here..." name="snippet" type="text" rows={10} maxLength={20000} isDisabled={loading || readOnly} />
+                      <FormHelperText>{`max length = 20000 | character count: ${watch('snippet')?.length || 0}`}</FormHelperText>
+                    </>
+                  )}
                 </FormControl>
                 <FormControl display="flex" alignItems="center">
                   <Tooltip label="If enabled the text will be copied to clipboard once link is opened. Supported only in Chrome.">
@@ -173,7 +219,7 @@ export default function Home({ snippet }) {
                 {watch('optional_fields') && (
                 <>
                   <FormControl my={2}>
-                    <Select placeholder="Syntax Highlight" size="sm" {...register('syntax')} isDisabled={loading || readOnly}>
+                    <Select placeholder="Syntax Highlight" size="sm" {...register('language')} isDisabled={loading || readOnly}>
                       {supportedSyntax.map((item, sIndex) => <option key={sIndex} value={item.value}>{item.label}</option>)}
                     </Select>
                   </FormControl>
@@ -190,6 +236,8 @@ export default function Home({ snippet }) {
                   Create
                 </Button>
                 )}
+                {!readOnly && <ReCAPTCHA ref={reRef} size="invisible" sitekey={recaptchaKey} />}
+
               </Box>
             </form>
           </Box>
