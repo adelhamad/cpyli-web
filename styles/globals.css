@@ -28,6 +28,7 @@ header.header{
   justify-content: space-between;
   border-bottom: 1px solid white;
   background-color: #032a44;
+  height: 40px;
 }
 
 header.header .logo{

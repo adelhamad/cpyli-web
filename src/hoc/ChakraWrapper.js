@@ -1,19 +1,20 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 
-// #7DE38D
+// #975921
 // #00242B
 
 const primary = {
-  50: '#EAFAED',
-  100: '#C4F2CB',
-  200: '#9EEAAA',
-  300: '#79E289',
-  400: '#53DA68',
-  500: '#2DD247',
-  600: '#24A839',
-  700: '#1B7E2B',
-  800: '#12541C',
-  900: '#092A0E',
+  50: '#FAF2EA',
+  100: '#F2DAC4',
+  200: '#EAC29F',
+  300: '#E2AB79',
+  400: '#D99353',
+  500: '#D17B2E',
+  600: '#A76325',
+  700: '#7E4A1B',
+  800: '#543112',
+  900: '#2A1909',
+
 }
 
 const secondary = {

@@ -20,7 +20,7 @@
     "react-google-recaptcha": "^2.1.0",
     "react-hook-form": "^7.22.2",
     "react-query": "^3.34.5",
-    "react-syntax-highlighter": "^15.4.5"
+    "react-web-share": "^1.1.0"
   },
   "devDependencies": {
     "eslint": "8.5.0",
