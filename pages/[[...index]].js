@@ -50,9 +50,9 @@ export default function Home({ snippet }) {
         title: '',
         description: '',
       })
-      router.push('/')
+      if (slug)router.push('/')
     }
-  }, [reset, snippet, router])
+  }, [reset, snippet, router, slug])
 
   const onSubmit = (data) => {
     const {
