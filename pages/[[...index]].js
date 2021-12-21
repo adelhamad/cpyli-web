@@ -14,8 +14,8 @@ import { SITE_NAME } from '../src/utils/constants'
 
 export default function Home() {
   const router = useRouter()
-  const { query, asPath } = router
-  const { index } = query // will be an array
+  const { asPath } = router
+  // const { index } = query // will be an array
   const {
     register, handleSubmit, watch, reset,
   } = useForm()
@@ -25,8 +25,8 @@ export default function Home() {
     if (asPath === '/') reset()
   }, [reset, asPath])
 
-  const onSubmit = (data) => {
-    console.log(data)
+  const onSubmit = () => {
+    // console.log(data)
   }
 
   return (
