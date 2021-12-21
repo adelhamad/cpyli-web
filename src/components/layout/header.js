@@ -10,14 +10,15 @@ export default function Header() {
 
   const onClickNew = () => {
     // eslint-disable-next-line no-restricted-globals, no-alert
-    const consent = confirm('All your changes will be reset!')
-    if (consent) router.push('/')
+    // const consent = confirm('All your changes will be reset!')
+    // if (consent) router.push('/')
+    router.push('/')
   }
 
   return (
     <header className="header">
       <div className="logo">
-        <Image width={180} height={32} className="mx-4 cursor-pointer" src="/assets/img/logo/logo-full.svg" alt="logo" />
+        <Image width={140} height={32} src="/assets/img/logo/logo-full.svg" alt="logo" />
       </div>
       <div className="flex items-center">
         <Button onClick={toggleColorMode} color="white" variant="link" marginX={2} cursor="pointer">

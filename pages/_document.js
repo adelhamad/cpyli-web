@@ -32,21 +32,15 @@ class MyDocument extends Document {
           <link rel="icon" href="/favicon.ico" />
           {/* <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" /> */}
 
-          <meta name="twitter:title" content="cpy.li | easiest way to share snippets" />
-          <meta property="og:title" content="cpy.li | easiest way to share snippets" />
-          <meta name="description" content="cpy.li - The quickest and easiest way to share code snippets or simple text." />
-          <meta name="twitter:description" content="cpy.li - The quickest and easiest way to share code snippets or simple text." />
-          <meta property="og:description" content="cpy.li - The quickest and easiest way to share code snippets or simple text." />
           <meta name="keywords" content="share snippet, code snippet, share text" />
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:url" content={`${this.props.PUBLIC_URL}`} />
-          <meta name="twitter:image" content={`${this.props.PUBLIC_URL}/assets/img/bg/meta-img.png`} />
-          <meta name="twitter:creator" content="@adelscript" />
+          <meta name="twitter:image" content={`${this.props.PUBLIC_URL}/assets/img/bg/meta-img.jpg`} />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="cpy.li" />
           <meta property="og:url" content={`${this.props.PUBLIC_URL}`} />
-          <meta property="og:image" content={`${this.props.PUBLIC_URL}/assets/img/bg/meta-img.png`} />
+          <meta property="og:image" content={`${this.props.PUBLIC_URL}/assets/img/bg/meta-img.jpg`} />
 
           {/* Global Site Tag (gtag.js) - Google Analytics */}
           {/* <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} /> */}
