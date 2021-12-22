@@ -78,7 +78,7 @@ export default function Home({ snippet }) {
   }, [reset, theSnippet, router, slug, index, readOnly])
 
   useEffect(() => {
-    if (theSnippet && theSnippet.auto_copy) {
+    if (theSnippet && theSnippet.auto_copy && theSnippet.body) {
       navigator.clipboard.writeText(theSnippet.body)
         .then(() => {
           toast({ title: 'Snippet Copied.', status: 'success' })
@@ -183,7 +183,7 @@ export default function Home({ snippet }) {
                 <FormControl marginY={4} id="snippet">
                   {readOnly ? (
                     <Box as="pre" minHeight={300}>
-                      <code className={`language-${theSnippet?.language}`}>{theSnippet.body}</code>
+                      <code className={`language-${theSnippet?.language}`}>{theSnippet?.body}</code>
                     </Box>
 
                   ) : (
