@@ -43,7 +43,7 @@ async function handler(req, res) {
       if (data?.data?.[0]) {
         const dataItem = data.data[0]
         const item = snippetObject(dataItem.attributes.password ? { attributes: { password: 'any' } } : dataItem)
-        if (item.id) axios.put(`${process.env.BACKEND_URL}/api/snippets/${item.id}`, { data: { views: parseInt(item.views) + 1 } })
+        if (item.id) await axios.put(`${process.env.BACKEND_URL}/api/snippets/${item.id}`, { data: { views: parseInt(item.views) + 1 } })
         statusCode = 200
         response = item
       } else {
